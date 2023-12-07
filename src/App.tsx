@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {
   FlatList,
@@ -17,6 +17,8 @@ function App(): JSX.Element {
   const [isCross, setIsCross] = useState<boolean>(false);
   const [gameWinner, setGameWinner] = useState<string>('');
   const [gameState, setGameState] = useState(new Array(9).fill('empty', 0, 9));
+  const [noOfWinsCross, setNoOfWinsCross] = useState(0);
+  const [noOfWinsCircle, setNoOfWinsCircle] = useState(0);
 
   const reloadGame = () => {
     setGameState(new Array(9).fill('empty', 0, 9));
@@ -99,9 +101,26 @@ function App(): JSX.Element {
         textColor: 'white',
       });
     }
-
     checkIsWinner();
   };
+
+  const reset = () => {
+    setGameState(new Array(9).fill('empty', 0, 9));
+    setGameWinner('');
+    setIsCross(false);
+    setNoOfWinsCircle(0);
+    setNoOfWinsCross(0);
+  };
+
+  useEffect(() => {
+    console.log({gameWinner});
+
+    if (gameWinner.includes('circle')) {
+      setNoOfWinsCircle(prev => prev + 1);
+    } else if (gameWinner.includes('cross')) {
+      setNoOfWinsCross(prev => prev + 1);
+    }
+  }, [gameWinner]);
 
   return (
     <SafeAreaView>
@@ -123,6 +142,16 @@ function App(): JSX.Element {
           </View>
         )}
 
+        {/* no of wins  */}
+        <View style={styles.noOfWins}>
+          <Text style={styles.noOfWinsTxt}>
+            No of Wins by X : {noOfWinsCross}
+          </Text>
+          <Text style={styles.noOfWinsTxt}>
+            No of Wins by O : {noOfWinsCircle}
+          </Text>
+        </View>
+
         {/* Game grid  */}
 
         <FlatList
@@ -138,12 +167,20 @@ function App(): JSX.Element {
             </Pressable>
           )}
         />
-        <View style={styles.resetBtn}>
+        <View style={styles.reloadBtnView}>
           <Pressable onPress={reloadGame}>
             <View style={styles.reloadBtn}>
               <Text style={styles.reloadBtnTxt}>
                 {gameWinner ? 'Reload the Game' : 'Start New Game'}
               </Text>
+            </View>
+          </Pressable>
+        </View>
+
+        <View style={styles.resetBtnView}>
+          <Pressable onPress={reset}>
+            <View style={styles.resetBtn}>
+              <Text style={styles.resetBtnTxt}>Reset</Text>
             </View>
           </Pressable>
         </View>
@@ -200,7 +237,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 90,
   },
-  resetBtn: {
+  reloadBtnView: {
     backgroundColor: 'teal',
     marginTop: 28,
     borderRadius: 10,
@@ -210,6 +247,35 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   reloadBtnTxt: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    color: 'white',
+    textAlign: 'center',
+  },
+  noOfWins: {
+    marginTop: 18,
+    width: '100%',
+    paddingVertical: 10,
+    backgroundColor: '#F71D70',
+    borderRadius: 12,
+  },
+  noOfWinsTxt: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 22,
+    textAlign: 'center',
+  },
+
+  resetBtnView: {
+    backgroundColor: 'black',
+    marginTop: 12,
+    borderRadius: 10,
+    width: '100%',
+  },
+  resetBtn: {
+    paddingVertical: 14,
+  },
+  resetBtnTxt: {
     fontWeight: 'bold',
     fontSize: 18,
     color: 'white',
